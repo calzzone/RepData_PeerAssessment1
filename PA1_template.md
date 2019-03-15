@@ -6,10 +6,37 @@ output:
 ---
 
 ## Loading and preprocessing the data
-```{r before_analysis, echo = TRUE}
-library(tidyverse)
-Sys.setlocale("LC_TIME","en_US.UTF-8") # force US style dates and times
 
+```r
+library(tidyverse)
+```
+
+```
+## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+```
+
+```
+## ✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
+## ✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
+## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
+## ✔ readr   1.3.1       ✔ forcats 0.4.0
+```
+
+```
+## ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+```
+
+```r
+Sys.setlocale("LC_TIME","en_US.UTF-8") # force US style dates and times
+```
+
+```
+## [1] "en_US.UTF-8"
+```
+
+```r
 #setwd("~/Desktop/coursera/reproductible_research")
 unzip("activity.zip")
 
@@ -28,7 +55,6 @@ activity <- read.csv("activity.csv",
 
 
 #str(activity)
-
 ```
 
 
@@ -40,8 +66,8 @@ For this part of the assignment, you can ignore the missing values in the datase
 
 2. Calculate and report the mean and median total number of steps taken per day
 
-```{r Q1, echo = TRUE}
 
+```r
 # Make a temporary data frame
 df <- activity %>% 
   group_by(Date=date) %>%
@@ -62,8 +88,15 @@ df %>%
   labs(title="Histogram of total daily steps", subtitle="Binwidth = 1000 steps",
        y="Count", x="Total daily steps", 
        caption = mean_and_median_steps)
+```
 
+```
+## Warning: Removed 8 rows containing non-finite values (stat_bin).
+```
 
+![](PA1_template_files/figure-html/Q1-1.png)<!-- -->
+
+```r
 #mean_and_median_steps
 ```
 
@@ -77,8 +110,8 @@ Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 
-```{r Q2, echo = TRUE}
 
+```r
 # Make a temporary data frame
 # I could not group by a date/time variable so I used its character representation.
 # I then converted the interval to a proper date/time format. 
@@ -105,9 +138,9 @@ df %>%
        y="Average number of steps", x="Interval (hour)", 
        caption = paste0("Most steps (", round(max_steps, 1), 
                         ") were taken at interval ", format(max_time, "%H:%M")))
-
-
 ```
+
+![](PA1_template_files/figure-html/Q2-1.png)<!-- -->
 
 
 ## Imputing missing values
@@ -116,15 +149,15 @@ Note that there are a number of days/intervals where there are missing values (c
 
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs).
 
-__Total number of rows with missing data = `r nrow(activity) - sum(complete.cases(activity)) `. __
+__Total number of rows with missing data = 2304. __
 
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
 
-```{r Q3A, echo = TRUE}
 
+```r
 activity2 <- activity
 
 #repalce missing step counts with means
@@ -152,8 +185,8 @@ activity2$steps[is.na(activity2$steps)] <- mean(activity2$steps, na.rm=T)
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r Q3B, echo = TRUE}
 
+```r
 # Make a temporary data frame
 df <- activity2 %>% 
   group_by(Date=date) %>%
@@ -174,8 +207,11 @@ df %>%
   labs(title="Histogram of total daily steps", subtitle="Binwidth = 1000 steps",
        y="Count", x="Total daily steps", 
        caption = mean_and_median_steps)
+```
 
+![](PA1_template_files/figure-html/Q3B-1.png)<!-- -->
 
+```r
 #mean_and_median_steps
 ```
 
@@ -188,18 +224,18 @@ For this part the weekdays() function may be of some help here. Use the dataset 
 
 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r Q4A, echo = TRUE}
 
+```r
 activity2 <- activity2 %>% 
   mutate(day = weekdays(date), 
          day.type = ifelse(day %in% c("Saturday", "Sunday"), 
                            "weekend", "weekday"))
-
 ```
 
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
-```{r Q4B, echo = TRUE}
+
+```r
 df <- activity2 %>%
   group_by(day.type, interval2) %>%
   summarise(`Average steps`= mean(steps, na.rm=T)) %>%
@@ -214,9 +250,9 @@ df %>%
   labs(title="Time-series plot of the average number of steps taken", 
        subtitle="by 5-minute interval, averaged across all weekdays and weekend days",
        y="Average number of steps", x="Interval (hour)")
-
-
 ```
+
+![](PA1_template_files/figure-html/Q4B-1.png)<!-- -->
 
 
 I took the liberty to use ggplot2 instead of latice since I am trying to learn this system. Therefore, I force myself to use ggplot2 for all charts, even if the same could be drawn easier with base/latice.
